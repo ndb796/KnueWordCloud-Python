@@ -60,25 +60,48 @@ def make_cloud_image(tags, file_name):
     fig.savefig(path)
 
 
-def process_from_text(text, max_count, min_length, words, file_name):
+def process_from_text(text, max_count, min_length, words, stopwords, file_name):
     # 최대 max_count 개의 단어 및 등장 횟수를 추출합니다.
     tags = get_tags(text, int(max_count), int(min_length))
     # 단어 가중치를 적용합니다.
     for n, c in words.items():
         if n in tags:
             tags[n] = tags[n] * float(words[n])
+    # 불용어를 제거합니다.
+    for n, c in stopwords.items():
+        if n in tags:
+            del tags[n]
     # 명사의 출현 빈도 정보를 통해 워드 클라우드 이미지를 생성합니다.
     make_cloud_image(tags, file_name)
+
+
+def get_weights_from_text(text, max_count, min_length, words, stopwords, file_name):
+    # 최대 max_count 개의 단어 및 등장 횟수를 추출합니다.
+    tags = get_tags(text, int(max_count), int(min_length))
+    # 단어 가중치를 적용합니다.
+    for n, c in words.items():
+        if n in tags:
+            tags[n] = tags[n] * float(words[n])
+    # 불용어를 제거합니다.
+    for n, c in stopwords.items():
+        if n in tags:
+            del tags[n]
+    # 결과 태그 가중치 정보를 반환합니다.
+    return tags
 
 
 @app.route("/process", methods=['GET', 'POST'])
 def process():
     content = request.json
     words = {}
+    stopwords = {}
     if content['words'] is not None:
         for data in content['words'].values():
             words[data['word']] = data['weight']
-    process_from_text(content['text'], content['maxCount'], content['minLength'], words, content['textID'])
+    if content['stopwords'] is not None:
+        for data in content['stopwords'].values():
+            stopwords[data['word']] = True
+    process_from_text(content['text'], content['maxCount'], content['minLength'], words, stopwords, content['textID'])
     result = {'result': True}
     return jsonify(result)
 
@@ -99,6 +122,21 @@ def validate():
         result['result'] = True
     else:
         result['result'] = False
+    return jsonify(result)
+
+
+@app.route("/weights", methods=['GET', 'POST'])
+def weights():
+    content = request.json
+    words = {}
+    stopwords = {}
+    if content['words'] is not None:
+        for data in content['words'].values():
+            words[data['word']] = data['weight']
+    if content['stopwords'] is not None:
+        for data in content['stopwords'].values():
+            stopwords[data['word']] = True
+    result = get_weights_from_text(content['text'], content['maxCount'], content['minLength'], words, stopwords, content['textID'])
     return jsonify(result)
 
 
