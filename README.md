@@ -5,6 +5,11 @@
 git clone https://github.com/ndb796/ReactWordCloudWebApp-Python.git
 cd ReactWordCloudWebApp-Python
 python word_cloud.py
+# 리눅스에서는 다음과 같이 수행
+sudo python3 word_cloud.py
+# Ctrl + Z
+bg
+disown -h
 ```
 ### API 호출 예제
 > [워드 클라우드 생성] URL: http://localhost:5000/process
