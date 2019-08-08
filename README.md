@@ -38,3 +38,20 @@ http://localhost:5000/outputs?textID=1
   "stopwords": {"1": {"word": "그"}, "2": {"word": "저"}}
 }
 ```
+
+### Reboot
+```
+* Check the freenom domain service.
+* Check the cloudflare service.
+* Open terminal with administrator authorization.
+* Connect to server instance using ssh.
+sudo netstat -nap | grep 80
+* Terminate the process that uses 80 port.
+sudo kill -9 {PID}
+cd KnueWordCloud-Python
+* Run the wordcloud server.
+sudo python3 word_cloud.py
+* [Ctrl + Z]
+bg
+disown -h
+```
